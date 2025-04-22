@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Rooter Bot</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css">
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/botui/build/botui.min.js"></script>
     <style>
       body {
+        margin: 0;
+        padding: 20px;
+        background: #f5f5f5;
         font-family: sans-serif;
+      }
+      #botui-app {
+        max-width: 600px;
+        margin: 0 auto;
         background: white;
-        padding: 30px;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       }
     </style>
   </head>
@@ -19,32 +28,36 @@
     <div id="botui-app">
       <bot-ui></bot-ui>
     </div>
-    <script>
-      const botui = new BotUI('botui-app');
 
-      botui.message.add({ content: '👋 Hi! I’m Rooter Bot. Want help finding a job? Updating your resume? Just checking out what is out there?' })
-        .then(() => botui.action.text({ action: { placeholder: 'What’s your name?' } }))
-        .then(res => {
-          const name = res.value;
-          return botui.message.add({ content: `Nice to meet you, ${name}! What role are you looking for?` });
-        })
-        .then(() => botui.action.text({ action: { placeholder: 'e.g., Frontend Developer' } }))
-        .then(res => {
-          const role = res.value;
-          return fetch('https://your-n8n-instance.com/webhook/rooter-intakehttps://ennube.app.n8n.cloud/webhook-test/8ab9e5e5-2d1e-41fa-9def-d6a952158ff5', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role })
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const botui = new BotUI("botui-app");
+
+        botui.message
+          .add({ content: "👋 Hi! I’m Rooter Bot. Want help finding a job?" })
+          .then(() => botui.action.text({ action: { placeholder: "What’s your name?" } }))
+          .then((res) => {
+            const name = res.value;
+            return botui.message.add({ content: `Nice to meet you, ${name}! What role are you looking for?` });
+          })
+          .then(() => botui.action.text({ action: { placeholder: "e.g., Frontend Developer" } }))
+          .then((res) => {
+            const role = res.value;
+            return fetch("https://ennube.app.n8n.cloud/webhook-test/8ab9e5e5-2d1e-41fa-9def-d6a952158ff5", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ role }),
+            });
+          })
+          .then((res) => res.json())
+          .then((data) => {
+            return botui.message.add({ content: `Here are some jobs I found: ${data.jobs.join(", ")}` });
+          })
+          .catch((err) => {
+            console.error(err);
+            botui.message.add({ content: "Oops! Something went wrong." });
           });
-        })
-        .then(res => res.json())
-        .then(data => {
-          return botui.message.add({ content: `Here are a few jobs I found: ${data.jobs.join(', ')}` });
-        })
-        .catch(err => {
-          botui.message.add({ content: `Oops! Something went wrong.` });
-          console.error(err);
-        });
+      });
     </script>
   </body>
 </html>
